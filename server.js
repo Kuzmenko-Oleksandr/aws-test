@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const pool = require('./db'); // наш Postgres пул
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -8,34 +9,39 @@ const API_KEY = process.env.API_KEY;
 app.use(cors());
 app.use(express.json());
 
-// health-check open
+// health-check
 app.get('/ping', (req, res) => {
     res.json({ status: 'ok' });
 });
 
-// 🔐 middleware
+// middleware
 function apiKeyMiddleware(req, res, next) {
-    // берём ключ из заголовка
     const key = req.header('x-api-key');
 
     if (!API_KEY) {
-        console.warn('API_KEY env is not set');
+        console.error('API_KEY env is not set');
         return res.status(500).json({ error: 'Server misconfigured' });
     }
 
     if (!key || key !== API_KEY) {
-        return res.status(403).json({ error: 'Forbidden' });
+        return res.status(403).json({ error: 'Forbidden: invalid API key' });
     }
 
     next();
 }
 
-
+//
 app.use('/api', apiKeyMiddleware);
 
-
-app.get('/api/secret', (req, res) => {
-    res.json({ data: 'Secret data for Denis‍️' });
+// test to Postgres
+app.get('/api/db-test', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT NOW() AS now');
+        res.json({ ok: true, now: result.rows[0].now });
+    } catch (err) {
+        console.error('DB error:', err);
+        res.status(500).json({ error: 'DB error' });
+    }
 });
 
 app.listen(PORT, () => {
