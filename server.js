@@ -47,3 +47,13 @@ app.get('/api/db-test', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+app.get('/api/users', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT id, name FROM users ORDER BY id');
+        res.json(result.rows);
+    } catch (err) {
+        console.error('DB error:', err);
+        res.status(500).json({ error: 'DB error' });
+    }
+});
