@@ -19,3 +19,7 @@ app.get('/ping', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+app.post('/test', (req, res) => {
+    res.json({ body: req.body });
+});
