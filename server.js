@@ -4,7 +4,7 @@ const cors = require('cors');
 const app = express();
 
 // важно: слушаем порт из ENV, как любит AWS
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 app.use(cors());           // чтобы Flutter Web тоже мог ходить
 app.use(express.json());   // чтобы читать JSON из body
